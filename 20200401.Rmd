@@ -57,15 +57,33 @@ print(`小明108學年課表A`)
 ```{r}
 # list含兩個lists, 子層list又各含兩個vectors
 `小明108學年課表C` <- list(
-  list(
-    c("108-1"), # 可只寫 "108-1"
-    c("高級會計學","高等統計學")
+  `上學期`=list(
+    semester=c("108-1"), # 可只寫 "108-1"
+    courses=c("高級會計學","高等統計學")
        ),
-  list(
-    c("108-2"),
-    c("食在拉丁美洲")
+  `下學期`=list(
+    semester=c("108-2"),
+    courses=c("食在拉丁美洲")
   )
 )
 print(`小明108學年課表C`)
+```
+
+
+## Github Commit
+```{r}
+commit <- list(
+  author = list(
+    name="Martin老師",
+    email="mtlin@gm.mtpu.edu.tw",
+    time=ymd_hms("2020-03-25T07:17:20Z")),
+  committer = list(
+    name="emilyluckey",
+    email="emily007@gmail.com",
+    time=ymd_hms("2020-03-26T08:18:40Z")
+  ),
+  message = "update"
+)
+print(commit)
 ```
 
