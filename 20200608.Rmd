@@ -1,0 +1,187 @@
+---
+---
+
+#需求函數
+
+qd =10 5p
+```{r}
+# p=1.2的需求量
+p=1.2
+qd <- 10-5*p # 小心是5*p, 不能寫5p
+# p=1.3的需求量
+p=1.3
+qd <- 10-5*p
+# p=1.4的需求量
+p=1.4
+qd <- 10-5*p
+```
+
+#函數定義
+```{r}
+demand <- # 創造一個物件叫demand
+  function(p){ # 定義這個物件為函數
+    q_d <- 10-5*p # 小心是5*p, 不能寫5p
+  }
+```
+
+```{r}
+# p=1.2的需求量
+demand(1.2) 
+# p=1.3的需求量
+demand(1.3)
+# p=1.4的需求量
+demand(1.4)
+```
+#Return
+```{r}
+demand_return <- 
+  function(p){
+    q_d <- 10-5*p
+    return(q_d)
+  }
+# 印在螢幕，但Global Environment並不會有q_d
+demand_return(1.2)
+```
+
+#暫時記住
+```{r}
+.Last.value
+```
+
+#長久存在
+```{r}
+# 要長久存在Global Environment要指定物件名稱（不要求與q_d同名）
+demand_return(1.2) -> q_d1.2
+```
+
+```{r}
+supply_return <- 
+  function(p){
+    q_s <- 0 + 2*p
+    return(q_s)
+  }
+```
+
+#今日天氣
+```{r}
+askSilly_weather <- function(locationInput,dateInput){
+  jsonlite::fromJSON("https://opendata.cwb.gov.tw/fileapi/v1/opendataapi/F-C0032-001?Authorization=rdec-key-123-45678-011121314&format=JSON") ->
+  weather_next36hours
+  
+  (weather_next36hours$cwbopendata$dataset$location$locationName == locationInput) -> pick_location
+  
+  weather_next36hours$cwbopendata$dataset$location$weatherElement[pick_location][[1]] -> weatherAtLocation
+  (weatherAtLocation$elementName=="MaxT") ->
+    pick_MaxT
+  (weatherAtLocation$elementName=="MinT") ->
+    pick_MinT
+  weatherAtLocation$time[pick_MaxT][[1]]$parameter$parameterName[[1]] -> maxT
+  weatherAtLocation$time[pick_MinT][[1]]$parameter$parameterName[[1]] -> minT
+  
+  glue::glue("{locationInput} {dateInput} 氣溫，最高{maxT}度，最低{minT}度。")
+}
+```
+
+```{r}
+askSilly_weather("臺中市")
+askSilly_weather("花蓮縣")
+```
+#時間
+```{r}
+library(lubridate)
+now()
+```
+
+#函數的組成
+```{r}
+class(demand_return)
+```
+
+```{r}
+# 查詢函數formals arguments要求
+formals(askSilly_weather)
+```
+
+```{r}
+# 查詢函數主體
+body(askSilly_weather)
+```
+#存在List
+```{r}
+learning_topics <- 
+  list(
+    subject="函數",
+    date=lubridate::ymd("2020-06-03"),
+    functionsCreated=list(
+      demand=demand_return # 等號右邊是呼叫demand_return的定義值，也就是function(...){...}值定義本身。
+    )
+  )
+```
+
+#Environment
+
+```{r}
+typeof(demand_return)
+```
+
+```{r}
+# 查詢函數執行所要求環境
+environment(demand_return)
+```
+
+```{r}
+intercept <- 10
+slope <- -5
+myDemand <- function(p){
+  q_d <- intercept + slope*p
+  return(q_d)
+}
+```
+
+```{r}
+environment(demand_return)
+environment(myDemand)
+```
+
+```{r}
+codetools::findGlobals(demand_return)
+codetools::findGlobals(myDemand) 
+
+# myDemand對Global environment的要求多了intercept及slope
+```
+
+```{r}
+myDemand2 <- function(p, intercept=10, slope=-5){
+  q_d <- intercept + slope*p
+  return(q_d)
+}
+```
+
+```{r}
+environment(myDemand2)
+findGlobals(myDemand2) # 不依靠global env裡的intercept/slope
+```
+
+```{r}
+myDemand2(1.2)
+myDemand2(1.2, slope=-1)
+myDemand2(1.2, intercept=5, slope=-1.2)
+```
+
+#練習
+
+```{r}
+library(httr)
+library(magrittr)
+GET("https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/NewTaipei/916?$top=30&$format=JSON") %>%
+  content -> estimatedArrivalTime_916
+
+GET("https://ptx.transportdata.tw/MOTC/v2/Bus/Route/City/NewTaipei/939?$top=30&$format=JSON") %>%
+  content -> route_916
+```
+打造公車到站預報機器人when_busArrives：
+```{r}
+when_busArrives("916","臺北大學正門")
+when_busArrives("939","學勤路")
+```
+
